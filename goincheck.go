@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 const defalutBaseURL = "https://coincheck.com"
@@ -15,6 +16,8 @@ type Client struct {
 	secretAccessKey string
 
 	BaseURL *url.URL
+
+	HTTPClient *http.Client
 }
 
 type Ticker struct {
@@ -46,8 +49,9 @@ func NewClient(key, secretKey string) (*Client, error) {
 	}
 
 	baseurl, _ := url.Parse(defalutBaseURL)
+	client := &http.Client{Timeout: time.Duration(10) * time.Second}
 
-	cli := &Client{accessKey: key, secretAccessKey: secretKey, BaseURL: baseurl}
+	cli := &Client{accessKey: key, secretAccessKey: secretKey, BaseURL: baseurl, HTTPClient: client}
 
 	return cli, nil
 }
