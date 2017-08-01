@@ -14,7 +14,7 @@ import (
 
 const defalutBaseURL = "https://coincheck.com"
 
-var userAgent = fmt.Sprintf("XXXGoClient/%s (%s)", version, runtime.Version())
+var userAgent = fmt.Sprintf("CoinCheckGoClient/%s (%s)", version, runtime.Version())
 
 type Client struct {
 	accessKey       string
