@@ -1,10 +1,13 @@
 TEST ?= $(shell go list ./... | grep -v sample)
 VERSION = $(shell grep 'version =' version.go | sed -E 's/.*"(.+)"$$/\1/')
 
-all:
+all: build
 
 deps:
 	go get -d -v ./...
+
+build: deps
+	go build
 
 test: deps
 	go test $(TEST) -timeout=3s -parallel=4
@@ -14,4 +17,4 @@ test: deps
 version:
 	@echo $(VERSION)
 
-.PTHONY: all deps test version
+.PTHONY: all deps build test version
