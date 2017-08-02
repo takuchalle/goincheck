@@ -1,6 +1,13 @@
 # goincheck
 coincheck client API for golang
 
+[![Build Status](https://travis-ci.org/takuyaohashi/goincheck.svg?branch=master)](https://travis-ci.org/takuyaohashi/goincheck)
+[![Go Documentation](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)][godocs]
+[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
+
+[license]: https://github.com/takuyaohashi/goincheck/blob/master/LICENSE
+[godocs]: http://godoc.org/github.com/takuyaohashi/goincheck
+
 # Installation
 
 ```
