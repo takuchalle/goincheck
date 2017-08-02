@@ -48,6 +48,20 @@ type OrderBook struct {
 	Bids [][]string `json:"bids"`
 }
 
+type ExchangeRateParam struct {
+	OrderType string  `json:"order_type"`
+	Pair      string  `json:"pair"`
+	Amount    float64 `json:"amount"`
+	Price     int     `json:"price"`
+}
+
+type ExchangeRate struct {
+	Success bool `json:"success"`
+	Rate    int  `json:"rate"`
+	Price   int  `json:"price"`
+	Amount  int  `json:"amount"`
+}
+
 type RatePair struct {
 	Rate string `json:"rate"`
 }
@@ -144,6 +158,26 @@ func (cli *Client) GetRatePair(pair Pair) (*RatePair, error) {
 	}
 
 	return &ratePair, nil
+}
+
+func (cli *Client) GetExchangeRate() (*ExchangeRate, error) {
+	req, err := cli.newRequest("GET", "/api/exchange/orders/rate", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := cli.HTTPClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var rate ExchangeRate
+	err = decodeBody(res, &rate)
+	if err != nil {
+		return nil, err
+	}
+
+	return &rate, nil
 }
 
 func (cli *Client) newRequest(method, endpoint string, body io.Reader) (*http.Request, error) {
