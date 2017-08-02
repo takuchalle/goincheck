@@ -1,5 +1,5 @@
 # goincheck
-coincheck client API for golang
+[coincheck exchange client API](https://coincheck.com/ja/documents/exchange/api) for golang
 
 [![Build Status](https://travis-ci.org/takuyaohashi/goincheck.svg?branch=master)](https://travis-ci.org/takuyaohashi/goincheck)
 [![Go Documentation](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)][godocs]
