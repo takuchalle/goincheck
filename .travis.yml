@@ -8,6 +8,7 @@ os:
   - linux
   - osx
 script:
+  - make build
   - make test
 branches:
   only:
