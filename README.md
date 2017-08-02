@@ -29,7 +29,7 @@ func main() {
 }
 ```
 
-For detail, please check ``sample/cmd/`` directory.
+For detail, please check ``sample/cmd/goincheck`` directory.
 
 # License
 MIT
