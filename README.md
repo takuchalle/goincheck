@@ -1,6 +1,8 @@
 # goincheck
 coincheck client API for golang
 
+[![Build Status](https://travis-ci.org/takuyaohashi/goincheck.svg?branch=master)](https://travis-ci.org/takuyaohashi/goincheck)
+
 # Installation
 
 ```
