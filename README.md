@@ -8,7 +8,7 @@ $ go get github.com/takuyaohashi/goincheck
 ```
 
 # Usage Example
-```
+```go
 package main
 
 import (
