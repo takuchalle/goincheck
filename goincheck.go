@@ -48,6 +48,10 @@ type OrderBook struct {
 	Bids [][]string `json:"bids"`
 }
 
+type RatePair struct {
+	Rate string `json:"rate"`
+}
+
 func NewClient(key, secretKey string) (*Client, error) {
 	if key == "" || secretKey == "" {
 		return &Client{}, errors.New("key is missing")
@@ -119,6 +123,27 @@ func (cli *Client) GetOrderBook() (*OrderBook, error) {
 	}
 
 	return &orderbook, nil
+}
+
+func (cli *Client) GetRatePair(pair Pair) (*RatePair, error) {
+	endpoint := "/api/rate/" + string(pair)
+	req, err := cli.newRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := cli.HTTPClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var ratePair RatePair
+	err = decodeBody(res, &ratePair)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ratePair, nil
 }
 
 func (cli *Client) newRequest(method, endpoint string, body io.Reader) (*http.Request, error) {
