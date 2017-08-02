@@ -29,7 +29,7 @@ func main() {
 }
 ```
 
-For detail, please check ``sample/cmd/goincheck`` directory.
+For detail, please check ``sample/cmd/goincheck`` directory or [GoDoc](http://godoc.org/github.com/takuyaohashi/goincheck).
 
 # License
 MIT
