@@ -69,16 +69,16 @@ type ExchangeRate struct {
 
 type Balance struct {
 	Success      bool   `json:"success"`
-	Jpy          string `json: "jpy"`
-	Btc          string `json: "jpy"`
-	JpyReserved  string `json: "jpy_reserved"`
-	BtcReserved  string `json: "btc_reserved"`
-	JpyLendInUse string `json: "jpy_lend_in_use"`
-	BtcLendInUse string `json: "btc_lend_in_use"`
-	JpyLend      string `json: "jpy_lent"`
-	BtcLend      string `json: "btc_lent"`
-	JpyDebt      string `json: "jpy_debt"`
-	BtcDebt      string `json: "btc_debt"`
+	Jpy          string `json:"jpy"`
+	Btc          string `json:"btc"`
+	JpyReserved  string `json:"jpy_reserved"`
+	BtcReserved  string `json:"btc_reserved"`
+	JpyLendInUse string `json:"jpy_lend_in_use"`
+	BtcLendInUse string `json:"btc_lend_in_use"`
+	JpyLend      string `json:"jpy_lent"`
+	BtcLend      string `json:"btc_lent"`
+	JpyDebt      string `json:"jpy_debt"`
+	BtcDebt      string `json:"btc_debt"`
 }
 
 type RatePair struct {
