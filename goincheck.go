@@ -1,6 +1,7 @@
 package goincheck
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -48,6 +49,24 @@ type OrderBook struct {
 	Bids [][]string `json:"bids"`
 }
 
+type ExchangeRateParam struct {
+	OrderType string  `json:"order_type"`
+	Pair      string  `json:"pair"`
+	Amount    float64 `json:"amount"`
+	Price     int     `json:"price"`
+}
+
+type ExchangeRate struct {
+	Success bool `json:"success"`
+	Rate    int  `json:"rate"`
+	Price   int  `json:"price"`
+	Amount  int  `json:"amount"`
+}
+
+type RatePair struct {
+	Rate string `json:"rate"`
+}
+
 func NewClient(key, secretKey string) (*Client, error) {
 	if key == "" || secretKey == "" {
 		return &Client{}, errors.New("key is missing")
@@ -61,8 +80,8 @@ func NewClient(key, secretKey string) (*Client, error) {
 	return cli, nil
 }
 
-func (cli *Client) GetTicker() (*Ticker, error) {
-	req, err := cli.newRequest("GET", "/api/ticker", nil)
+func (cli *Client) GetTicker(ctx context.Context) (*Ticker, error) {
+	req, err := cli.newRequest(ctx, http.MethodGet, "/api/ticker", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -81,8 +100,8 @@ func (cli *Client) GetTicker() (*Ticker, error) {
 	return &ticker, nil
 }
 
-func (cli *Client) GetTrade() (*[]Trade, error) {
-	req, err := cli.newRequest("GET", "/api/trades", nil)
+func (cli *Client) GetTrade(ctx context.Context) (*[]Trade, error) {
+	req, err := cli.newRequest(ctx, http.MethodGet, "/api/trades", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -101,8 +120,8 @@ func (cli *Client) GetTrade() (*[]Trade, error) {
 	return &trades, nil
 }
 
-func (cli *Client) GetOrderBook() (*OrderBook, error) {
-	req, err := cli.newRequest("GET", "/api/order_books", nil)
+func (cli *Client) GetOrderBook(ctx context.Context) (*OrderBook, error) {
+	req, err := cli.newRequest(ctx, http.MethodGet, "/api/order_books", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -121,14 +140,58 @@ func (cli *Client) GetOrderBook() (*OrderBook, error) {
 	return &orderbook, nil
 }
 
-func (cli *Client) newRequest(method, endpoint string, body io.Reader) (*http.Request, error) {
+func (cli *Client) GetRatePair(ctx context.Context, pair Pair) (*RatePair, error) {
+	endpoint := "/api/rate/" + string(pair)
+	req, err := cli.newRequest(ctx, http.MethodGet, endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := cli.HTTPClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var ratePair RatePair
+	err = decodeBody(res, &ratePair)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ratePair, nil
+}
+
+func (cli *Client) GetExchangeRate(ctx context.Context) (*ExchangeRate, error) {
+	req, err := cli.newRequest(ctx, http.MethodGet, "/api/exchange/orders/rate", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := cli.HTTPClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var rate ExchangeRate
+	err = decodeBody(res, &rate)
+	if err != nil {
+		return nil, err
+	}
+
+	return &rate, nil
+}
+
+func (cli *Client) newRequest(ctx context.Context, method, endpoint string, body io.Reader) (*http.Request, error) {
 	u := *cli.BaseURL
 	u.Path = path.Join(cli.BaseURL.Path, endpoint)
 	req, err := http.NewRequest(method, u.String(), body)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	req = req.WithContext(ctx)
+
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", userAgent)
 
 	return req, nil
