@@ -191,7 +191,7 @@ func (cli *Client) newRequest(ctx context.Context, method, endpoint string, body
 
 	req = req.WithContext(ctx)
 
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", userAgent)
 
 	return req, nil
