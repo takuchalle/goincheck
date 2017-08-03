@@ -1,6 +1,7 @@
 package goincheck
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -79,8 +80,8 @@ func NewClient(key, secretKey string) (*Client, error) {
 	return cli, nil
 }
 
-func (cli *Client) GetTicker() (*Ticker, error) {
-	req, err := cli.newRequest("GET", "/api/ticker", nil)
+func (cli *Client) GetTicker(ctx context.Context) (*Ticker, error) {
+	req, err := cli.newRequest(ctx, "GET", "/api/ticker", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -99,8 +100,8 @@ func (cli *Client) GetTicker() (*Ticker, error) {
 	return &ticker, nil
 }
 
-func (cli *Client) GetTrade() (*[]Trade, error) {
-	req, err := cli.newRequest("GET", "/api/trades", nil)
+func (cli *Client) GetTrade(ctx context.Context) (*[]Trade, error) {
+	req, err := cli.newRequest(ctx, "GET", "/api/trades", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -119,8 +120,8 @@ func (cli *Client) GetTrade() (*[]Trade, error) {
 	return &trades, nil
 }
 
-func (cli *Client) GetOrderBook() (*OrderBook, error) {
-	req, err := cli.newRequest("GET", "/api/order_books", nil)
+func (cli *Client) GetOrderBook(ctx context.Context) (*OrderBook, error) {
+	req, err := cli.newRequest(ctx, "GET", "/api/order_books", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -139,9 +140,9 @@ func (cli *Client) GetOrderBook() (*OrderBook, error) {
 	return &orderbook, nil
 }
 
-func (cli *Client) GetRatePair(pair Pair) (*RatePair, error) {
+func (cli *Client) GetRatePair(ctx context.Context, pair Pair) (*RatePair, error) {
 	endpoint := "/api/rate/" + string(pair)
-	req, err := cli.newRequest("GET", endpoint, nil)
+	req, err := cli.newRequest(ctx, "GET", endpoint, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -160,8 +161,8 @@ func (cli *Client) GetRatePair(pair Pair) (*RatePair, error) {
 	return &ratePair, nil
 }
 
-func (cli *Client) GetExchangeRate() (*ExchangeRate, error) {
-	req, err := cli.newRequest("GET", "/api/exchange/orders/rate", nil)
+func (cli *Client) GetExchangeRate(ctx context.Context) (*ExchangeRate, error) {
+	req, err := cli.newRequest(ctx, "GET", "/api/exchange/orders/rate", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -180,13 +181,16 @@ func (cli *Client) GetExchangeRate() (*ExchangeRate, error) {
 	return &rate, nil
 }
 
-func (cli *Client) newRequest(method, endpoint string, body io.Reader) (*http.Request, error) {
+func (cli *Client) newRequest(ctx context.Context, method, endpoint string, body io.Reader) (*http.Request, error) {
 	u := *cli.BaseURL
 	u.Path = path.Join(cli.BaseURL.Path, endpoint)
 	req, err := http.NewRequest(method, u.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req = req.WithContext(ctx)
+
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("User-Agent", userAgent)
 
