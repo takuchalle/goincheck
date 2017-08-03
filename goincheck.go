@@ -81,7 +81,7 @@ func NewClient(key, secretKey string) (*Client, error) {
 }
 
 func (cli *Client) GetTicker(ctx context.Context) (*Ticker, error) {
-	req, err := cli.newRequest(ctx, "GET", "/api/ticker", nil)
+	req, err := cli.newRequest(ctx, http.MethodGet, "/api/ticker", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (cli *Client) GetTicker(ctx context.Context) (*Ticker, error) {
 }
 
 func (cli *Client) GetTrade(ctx context.Context) (*[]Trade, error) {
-	req, err := cli.newRequest(ctx, "GET", "/api/trades", nil)
+	req, err := cli.newRequest(ctx, http.MethodGet, "/api/trades", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +121,7 @@ func (cli *Client) GetTrade(ctx context.Context) (*[]Trade, error) {
 }
 
 func (cli *Client) GetOrderBook(ctx context.Context) (*OrderBook, error) {
-	req, err := cli.newRequest(ctx, "GET", "/api/order_books", nil)
+	req, err := cli.newRequest(ctx, http.MethodGet, "/api/order_books", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +142,7 @@ func (cli *Client) GetOrderBook(ctx context.Context) (*OrderBook, error) {
 
 func (cli *Client) GetRatePair(ctx context.Context, pair Pair) (*RatePair, error) {
 	endpoint := "/api/rate/" + string(pair)
-	req, err := cli.newRequest(ctx, "GET", endpoint, nil)
+	req, err := cli.newRequest(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +162,7 @@ func (cli *Client) GetRatePair(ctx context.Context, pair Pair) (*RatePair, error
 }
 
 func (cli *Client) GetExchangeRate(ctx context.Context) (*ExchangeRate, error) {
-	req, err := cli.newRequest(ctx, "GET", "/api/exchange/orders/rate", nil)
+	req, err := cli.newRequest(ctx, http.MethodGet, "/api/exchange/orders/rate", nil)
 	if err != nil {
 		return nil, err
 	}
