@@ -67,6 +67,28 @@ type ExchangeRate struct {
 	Amount  int  `json:"amount"`
 }
 
+type Order struct {
+	Success      bool    `json:"success"`
+	Id           int     `json:"id"`
+	Pair         string  `json:"pair"`
+	OrderType    string  `json:"order_type"`
+	Amount       float64 `json:"amount"`
+	Rate         int     `json:"rate"`
+	StopLossRate int     `json:"stop_less_rate"`
+	CreatedAt    string  `json:"created_at"`
+	Error        string  `json:"error`
+}
+
+type OrderParam struct {
+	Pair            string  `json:"pair"`
+	OrderType       string  `json:"order_type"`
+	Amount          float64 `json:"amount"`
+	Rate            int     `json:"rate"`
+	MarketBuyAmount int     `json:"market_buy_amount"`
+	PositionId      int     `json:"position_id"`
+	StopLossRate    int     `json:"stop_less_rate"`
+}
+
 type Balance struct {
 	Success      bool   `json:"success"`
 	Jpy          string `json:"jpy"`
@@ -195,8 +217,62 @@ func (cli *Client) GetExchangeRate(ctx context.Context) (*ExchangeRate, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return &rate, nil
+}
+
+func (cli *Client) newOrder(ctx context.Context, param *OrderParam) (*Order, error) {
+	data, err := encodeBody(param)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := cli.newRequest(ctx, http.MethodPost, "/api/exchange/orders", data)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := cli.HTTPClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var order Order
+	err = decodeBody(res, &order)
+	if err != nil {
+		return nil, err
+	}
+
+	if order.Success == false {
+		return nil, errors.New(order.Error)
+	}
+
+	return &order, nil
+}
+
+func (cli *Client) OrderToBuy(ctx context.Context, rate int, amount float64) (*Order, error) {
+	if rate < 0 {
+		return nil, errors.New("rate is negative")
+	}
+	if amount < 0 {
+		return nil, errors.New("amount is negative")
+	}
+
+	param := OrderParam{OrderType: "buy", Pair: "btc_jpy", Rate: rate, Amount: amount}
+
+	return cli.newOrder(ctx, &param)
+}
+
+func (cli *Client) OrderToSell(ctx context.Context, rate int, amount float64) (*Order, error) {
+	if rate < 0 {
+		return nil, errors.New("rate is negative")
+	}
+	if amount < 0 {
+		return nil, errors.New("amount is negative")
+	}
+
+	param := OrderParam{OrderType: "sell", Pair: "btc_jpy", Rate: rate, Amount: amount}
+
+	return cli.newOrder(ctx, &param)
 }
 
 func (cli *Client) GetBalance(ctx context.Context) (*Balance, error) {
