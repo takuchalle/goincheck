@@ -76,7 +76,7 @@ type Order struct {
 	Rate         int     `json:"rate"`
 	StopLossRate int     `json:"stop_less_rate"`
 	CreatedAt    string  `json:"created_at"`
-	Error        string  `json:"error`
+	Error        string  `json:"error"`
 }
 
 type OrderParam struct {
