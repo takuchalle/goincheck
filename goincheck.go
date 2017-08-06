@@ -71,7 +71,7 @@ type ExchangeRate struct {
 
 type Order struct {
 	Success      bool    `json:"success"`
-	Id           int     `json:"id"`
+	ID           int     `json:"id"`
 	Pair         string  `json:"pair"`
 	OrderType    string  `json:"order_type"`
 	Amount       float64 `json:"amount"`
@@ -87,7 +87,7 @@ type OrderParam struct {
 	Amount          float64 `json:"amount"`
 	Rate            int     `json:"rate"`
 	MarketBuyAmount int     `json:"market_buy_amount"`
-	PositionId      int     `json:"position_id"`
+	PositionID      int     `json:"position_id"`
 	StopLossRate    int     `json:"stop_less_rate"`
 }
 
