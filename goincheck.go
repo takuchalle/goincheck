@@ -21,6 +21,7 @@ const defalutBaseURL = "https://coincheck.com"
 
 var userAgent = fmt.Sprintf("CoinCheckGoClient/%s (%s)", version, runtime.Version())
 
+// Client struct represents Coincheck API client.
 type Client struct {
 	accessKey       string
 	secretAccessKey string
@@ -30,6 +31,7 @@ type Client struct {
 	HTTPClient *http.Client
 }
 
+// Ticker struct represents Coinckeck Ticker API Response.
 type Ticker struct {
 	Last      float64 `json:"last"`
 	Bid       float64 `json:"bid"`
