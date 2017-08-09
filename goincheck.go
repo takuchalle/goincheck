@@ -1,15 +1,19 @@
 package goincheck
 
 import (
+	"bytes"
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"path"
 	"runtime"
+	"strconv"
 	"time"
 )
 
@@ -17,6 +21,7 @@ const defalutBaseURL = "https://coincheck.com"
 
 var userAgent = fmt.Sprintf("CoinCheckGoClient/%s (%s)", version, runtime.Version())
 
+// Client struct represents Coincheck API client.
 type Client struct {
 	accessKey       string
 	secretAccessKey string
@@ -26,6 +31,7 @@ type Client struct {
 	HTTPClient *http.Client
 }
 
+// Ticker struct represents Coinckeck Ticker API Response.
 type Ticker struct {
 	Last      float64 `json:"last"`
 	Bid       float64 `json:"bid"`
@@ -63,6 +69,42 @@ type ExchangeRate struct {
 	Amount  int  `json:"amount"`
 }
 
+type Order struct {
+	Success      bool    `json:"success"`
+	ID           int     `json:"id"`
+	Pair         string  `json:"pair"`
+	OrderType    string  `json:"order_type"`
+	Amount       float64 `json:"amount"`
+	Rate         int     `json:"rate"`
+	StopLossRate int     `json:"stop_less_rate"`
+	CreatedAt    string  `json:"created_at"`
+	Error        string  `json:"error"`
+}
+
+type OrderParam struct {
+	Pair            string  `json:"pair"`
+	OrderType       string  `json:"order_type"`
+	Amount          float64 `json:"amount"`
+	Rate            int     `json:"rate"`
+	MarketBuyAmount int     `json:"market_buy_amount"`
+	PositionID      int     `json:"position_id"`
+	StopLossRate    int     `json:"stop_less_rate"`
+}
+
+type Balance struct {
+	Success      bool   `json:"success"`
+	Jpy          string `json:"jpy"`
+	Btc          string `json:"btc"`
+	JpyReserved  string `json:"jpy_reserved"`
+	BtcReserved  string `json:"btc_reserved"`
+	JpyLendInUse string `json:"jpy_lend_in_use"`
+	BtcLendInUse string `json:"btc_lend_in_use"`
+	JpyLend      string `json:"jpy_lent"`
+	BtcLend      string `json:"btc_lent"`
+	JpyDebt      string `json:"jpy_debt"`
+	BtcDebt      string `json:"btc_debt"`
+}
+
 type RatePair struct {
 	Rate string `json:"rate"`
 }
@@ -81,7 +123,7 @@ func NewClient(key, secretKey string) (*Client, error) {
 }
 
 func (cli *Client) GetTicker(ctx context.Context) (*Ticker, error) {
-	req, err := cli.newRequest(ctx, http.MethodGet, "/api/ticker", nil)
+	req, err := cli.newRequest(ctx, http.MethodGet, "/api/ticker", []byte(""))
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +143,7 @@ func (cli *Client) GetTicker(ctx context.Context) (*Ticker, error) {
 }
 
 func (cli *Client) GetTrade(ctx context.Context) (*[]Trade, error) {
-	req, err := cli.newRequest(ctx, http.MethodGet, "/api/trades", nil)
+	req, err := cli.newRequest(ctx, http.MethodGet, "/api/trades", []byte(""))
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +163,7 @@ func (cli *Client) GetTrade(ctx context.Context) (*[]Trade, error) {
 }
 
 func (cli *Client) GetOrderBook(ctx context.Context) (*OrderBook, error) {
-	req, err := cli.newRequest(ctx, http.MethodGet, "/api/order_books", nil)
+	req, err := cli.newRequest(ctx, http.MethodGet, "/api/order_books", []byte(""))
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +184,7 @@ func (cli *Client) GetOrderBook(ctx context.Context) (*OrderBook, error) {
 
 func (cli *Client) GetRatePair(ctx context.Context, pair Pair) (*RatePair, error) {
 	endpoint := "/api/rate/" + string(pair)
-	req, err := cli.newRequest(ctx, http.MethodGet, endpoint, nil)
+	req, err := cli.newRequest(ctx, http.MethodGet, endpoint, []byte(""))
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +204,7 @@ func (cli *Client) GetRatePair(ctx context.Context, pair Pair) (*RatePair, error
 }
 
 func (cli *Client) GetExchangeRate(ctx context.Context) (*ExchangeRate, error) {
-	req, err := cli.newRequest(ctx, http.MethodGet, "/api/exchange/orders/rate", nil)
+	req, err := cli.newRequest(ctx, http.MethodGet, "/api/exchange/orders/rate", []byte(""))
 	if err != nil {
 		return nil, err
 	}
@@ -177,22 +219,98 @@ func (cli *Client) GetExchangeRate(ctx context.Context) (*ExchangeRate, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return &rate, nil
 }
 
-func (cli *Client) newRequest(ctx context.Context, method, endpoint string, body io.Reader) (*http.Request, error) {
-	u := *cli.BaseURL
-	u.Path = path.Join(cli.BaseURL.Path, endpoint)
-	req, err := http.NewRequest(method, u.String(), body)
+func (cli *Client) newOrder(ctx context.Context, param *OrderParam) (*Order, error) {
+	data, err := encodeBody(param)
 	if err != nil {
 		return nil, err
 	}
 
-	req = req.WithContext(ctx)
+	req, err := cli.newRequest(ctx, http.MethodPost, "/api/exchange/orders", data)
+	if err != nil {
+		return nil, err
+	}
 
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", userAgent)
+	res, err := cli.HTTPClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var order Order
+	err = decodeBody(res, &order)
+	if err != nil {
+		return nil, err
+	}
+
+	if order.Success == false {
+		return nil, errors.New(order.Error)
+	}
+
+	return &order, nil
+}
+
+func (cli *Client) OrderToBuy(ctx context.Context, rate int, amount float64) (*Order, error) {
+	if rate < 0 {
+		return nil, errors.New("rate is negative")
+	}
+	if amount < 0 {
+		return nil, errors.New("amount is negative")
+	}
+
+	param := OrderParam{OrderType: "buy", Pair: "btc_jpy", Rate: rate, Amount: amount}
+
+	return cli.newOrder(ctx, &param)
+}
+
+func (cli *Client) OrderToSell(ctx context.Context, rate int, amount float64) (*Order, error) {
+	if rate < 0 {
+		return nil, errors.New("rate is negative")
+	}
+	if amount < 0 {
+		return nil, errors.New("amount is negative")
+	}
+
+	param := OrderParam{OrderType: "sell", Pair: "btc_jpy", Rate: rate, Amount: amount}
+
+	return cli.newOrder(ctx, &param)
+}
+
+func (cli *Client) GetBalance(ctx context.Context) (*Balance, error) {
+	req, err := cli.newRequest(ctx, http.MethodGet, "/api/accounts/balance", []byte(""))
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := cli.HTTPClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var balance Balance
+	err = decodeBody(res, &balance)
+	if err != nil {
+		return nil, err
+	}
+
+	return &balance, nil
+}
+
+func (cli *Client) newRequest(ctx context.Context, method, endpoint string, body []byte) (*http.Request, error) {
+	u := *cli.BaseURL
+	u.Path = path.Join(cli.BaseURL.Path, endpoint)
+	req, err := http.NewRequest(method, u.String(), bytes.NewBuffer(body))
+	if err != nil {
+		return nil, err
+	}
+
+	headers := getHeaders(cli.accessKey, cli.secretAccessKey, cli.BaseURL.String()+endpoint, string(body))
+	for key, value := range headers {
+		req.Header.Set(key, value)
+	}
+
+	req = req.WithContext(ctx)
 
 	return req, nil
 }
@@ -201,4 +319,29 @@ func decodeBody(res *http.Response, out interface{}) error {
 	defer res.Body.Close()
 	decoder := json.NewDecoder(res.Body)
 	return decoder.Decode(out)
+}
+
+func encodeBody(in interface{}) ([]byte, error) {
+	return json.Marshal(in)
+}
+
+func getHeaders(key, secret, uri, body string) map[string]string {
+	currentTime := time.Now().UTC().Unix()
+	nonce := strconv.Itoa(int(currentTime))
+	message := nonce + uri + body
+	signature := calcHmac256(message, secret)
+	return map[string]string{
+		"Content-Type":     "application/json",
+		"ACCESS-KEY":       key,
+		"ACCESS-NONCE":     nonce,
+		"ACCESS-SIGNATURE": signature,
+		"User-Agent":       userAgent,
+	}
+}
+
+func calcHmac256(message string, secret string) string {
+	key := []byte(secret)
+	h := hmac.New(sha256.New, key)
+	h.Write([]byte(message))
+	return hex.EncodeToString(h.Sum(nil))
 }
