@@ -31,7 +31,7 @@ type Client struct {
 	HTTPClient *http.Client
 }
 
-// Ticker struct represents Coinckeck Ticker API Response.
+// Ticker struct represents Coincheck Ticker API Response.
 type Ticker struct {
 	Last      float64 `json:"last"`
 	Bid       float64 `json:"bid"`
@@ -42,6 +42,7 @@ type Ticker struct {
 	Timestamp float64 `json:"timestamp"`
 }
 
+// Trade struct represents Coincheck Trade API Respoonse.
 type Trade struct {
 	ID        int     `json:"id"`
 	Amount    string  `json:"amount"`
@@ -50,18 +51,20 @@ type Trade struct {
 	CreatedAt string  `json:"created_at"`
 }
 
+// OrderBook struct represents Coincheck OrderBook API Response.
 type OrderBook struct {
 	Asks [][]string `json:"asks"`
 	Bids [][]string `json:"bids"`
 }
 
-type ExchangeRateParam struct {
+type exchangeRateParam struct {
 	OrderType string  `json:"order_type"`
 	Pair      string  `json:"pair"`
 	Amount    float64 `json:"amount"`
 	Price     int     `json:"price"`
 }
 
+// ExchangeRate struct represents Coincheck ExchangeRate API Response.
 type ExchangeRate struct {
 	Success bool `json:"success"`
 	Rate    int  `json:"rate"`
@@ -69,6 +72,7 @@ type ExchangeRate struct {
 	Amount  int  `json:"amount"`
 }
 
+// Order struct represents Coincheck Order API Response.
 type Order struct {
 	Success      bool    `json:"success"`
 	ID           int     `json:"id"`
@@ -81,7 +85,7 @@ type Order struct {
 	Error        string  `json:"error"`
 }
 
-type OrderParam struct {
+type orderParam struct {
 	Pair            string  `json:"pair"`
 	OrderType       string  `json:"order_type"`
 	Amount          float64 `json:"amount"`
@@ -91,6 +95,7 @@ type OrderParam struct {
 	StopLossRate    int     `json:"stop_less_rate"`
 }
 
+// Balance struct represents Coincheck Balance API Response.
 type Balance struct {
 	Success      bool   `json:"success"`
 	Jpy          string `json:"jpy"`
@@ -105,6 +110,7 @@ type Balance struct {
 	BtcDebt      string `json:"btc_debt"`
 }
 
+// RatePair struct reporesents Coincheck RatePair API Response.
 type RatePair struct {
 	Rate string `json:"rate"`
 }
@@ -222,7 +228,7 @@ func (cli *Client) GetExchangeRate(ctx context.Context) (*ExchangeRate, error) {
 	return &rate, nil
 }
 
-func (cli *Client) newOrder(ctx context.Context, param *OrderParam) (*Order, error) {
+func (cli *Client) newOrder(ctx context.Context, param *orderParam) (*Order, error) {
 	data, err := encodeBody(param)
 	if err != nil {
 		return nil, err
@@ -259,7 +265,7 @@ func (cli *Client) OrderToBuy(ctx context.Context, rate int, amount float64) (*O
 		return nil, errors.New("amount is negative")
 	}
 
-	param := OrderParam{OrderType: "buy", Pair: "btc_jpy", Rate: rate, Amount: amount}
+	param := orderParam{OrderType: "buy", Pair: "btc_jpy", Rate: rate, Amount: amount}
 
 	return cli.newOrder(ctx, &param)
 }
@@ -272,7 +278,7 @@ func (cli *Client) OrderToSell(ctx context.Context, rate int, amount float64) (*
 		return nil, errors.New("amount is negative")
 	}
 
-	param := OrderParam{OrderType: "sell", Pair: "btc_jpy", Rate: rate, Amount: amount}
+	param := orderParam{OrderType: "sell", Pair: "btc_jpy", Rate: rate, Amount: amount}
 
 	return cli.newOrder(ctx, &param)
 }
