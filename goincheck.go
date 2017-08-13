@@ -1,3 +1,4 @@
+// Package goincheck is client for Coincheck Exchange API
 package goincheck
 
 import (
@@ -115,6 +116,7 @@ type RatePair struct {
 	Rate string `json:"rate"`
 }
 
+// NewClient creats Client Struct.
 func NewClient(key, secretKey string) (*Client, error) {
 	if key == "" || secretKey == "" {
 		return &Client{}, errors.New("key is missing")

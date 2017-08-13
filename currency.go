@@ -1,3 +1,4 @@
+// Package goincheck is client for Coincheck Exchange API
 package goincheck
 
 // Pair shows exchange pairs.
