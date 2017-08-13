@@ -6,7 +6,7 @@ type Pair string
 const (
 	// BtcJpy is pair of BTC(Bitcoint) and Japanese yen.
 	BtcJpy Pair = "btc_jpy"
-	
+
 	// EthJpy is pair of ETH(Ethereum) and Japanese yen.
 	EthJpy Pair = "eth_jpy"
 
@@ -28,7 +28,7 @@ const (
 	// RepJpy is pair of REP(Augur) and Japanese yen.
 	RepJpy Pair = "rep_jpy"
 
-	// XrpJpy is pair of XRP(Ripple) and Japanese yen. 
+	// XrpJpy is pair of XRP(Ripple) and Japanese yen.
 	XrpJpy Pair = "xrp_jpy"
 
 	// ZecJpy is pair of ZEC(Zcash) and Japanese yen.
