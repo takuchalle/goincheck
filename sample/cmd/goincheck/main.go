@@ -1,16 +1,31 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"os"
+	"time"
 
 	"github.com/takuyaohashi/goincheck"
 )
 
-func main() {
-	client, _ := goincheck.NewClient("hoge", "huga")
-	tikcer, _ := client.GetTicker()
-	fmt.Printf("Tikcer = %+v\n", tikcer)
+const (
+	your_key       = ""
+	your_secretkey = ""
+)
 
-	orderbook, _ := client.GetOrderBook()
-	fmt.Printf("OrderBook = %+v\n", orderbook)
+func main() {
+	client, _ := goincheck.NewClient(your_key, your_secretkey)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	tikcer, err := client.GetTicker(ctx)
+	if err != nil {
+		fmt.Print(err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Tikcer = %+v\n", tikcer)
+	os.Exit(0)
 }
