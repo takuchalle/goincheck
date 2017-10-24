@@ -1,31 +1,31 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
-	"time"
 
-	"github.com/takuyaohashi/goincheck"
+	"github.com/spf13/cobra"
 )
 
-const (
-	your_key       = ""
-	your_secretkey = ""
-)
+var RootCmd = &cobra.Command{
+	Use:           "goincheck",
+	Short:         "coincheck client",
+	Long:          "goincheck - coincheck client for CLI",
+	SilenceUsage:  true,
+	SilenceErrors: true,
+	Run: func(cmd *cobra.Command, args []string) {
+		cmd.Usage()
+	},
+}
 
-func main() {
-	client, _ := goincheck.NewClient(your_key, your_secretkey)
-
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
-
-	tikcer, err := client.GetTicker(ctx)
+func execute() {
+	err := RootCmd.Execute()
 	if err != nil {
-		fmt.Print(err)
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+}
 
-	fmt.Printf("Tikcer = %+v\n", tikcer)
-	os.Exit(0)
+func main() {
+	execute()
 }
