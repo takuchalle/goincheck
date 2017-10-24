@@ -285,6 +285,26 @@ func (cli *Client) OrderToSell(ctx context.Context, rate int, amount float64) (*
 	return cli.newOrder(ctx, &param)
 }
 
+func (cli *Client) OrderToMarketBuy(ctx context.Context, yen int) (*Order, error) {
+	if yen < 0 {
+		return nil, errors.New("yen is negative")
+	}
+
+	param := orderParam{OrderType: "market_buy", Pair: "btc_jpy", MarketBuyAmount: yen}
+
+	return cli.newOrder(ctx, &param)
+}
+
+func (cli *Client) OrderToMarketSell(ctx context.Context, amount float64) (*Order, error) {
+	if amount < 0 {
+		return nil, errors.New("amount is negative")
+	}
+
+	param := orderParam{OrderType: "market_sell", Pair: "btc_jpy", Amount: amount}
+
+	return cli.newOrder(ctx, &param)
+}
+
 func (cli *Client) GetBalance(ctx context.Context) (*Balance, error) {
 	req, err := cli.newRequest(ctx, http.MethodGet, "/api/accounts/balance", []byte(""))
 	if err != nil {
