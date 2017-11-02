@@ -14,8 +14,8 @@ const (
 	// EtcJpy is pair of ETC(Ethereum Classic) and Japanese yen.
 	EtcJpy Pair = "etc_jpy"
 
-	// DapJpy is pair of DAP and Japanese yen.
-	DapJpy Pair = "dao_jpy"
+	// DaoJpy is pair of DAO and Japanese yen.
+	DaoJpy Pair = "dao_jpy"
 
 	// LskJpy is pair of Lsk(Lisk) and Japanese yen.
 	LskJpy Pair = "lsk_jpy"
