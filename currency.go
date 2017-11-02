@@ -5,7 +5,7 @@ package goincheck
 type Pair string
 
 const (
-	// BtcJpy is pair of BTC(Bitcoint) and Japanese yen.
+	// BtcJpy is pair of BTC(Bitcoin) and Japanese yen.
 	BtcJpy Pair = "btc_jpy"
 
 	// EthJpy is pair of ETH(Ethereum) and Japanese yen.
