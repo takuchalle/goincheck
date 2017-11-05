@@ -354,7 +354,7 @@ func encodeBody(in interface{}) ([]byte, error) {
 }
 
 func getHeaders(key, secret, uri, body string) map[string]string {
-	currentTime := time.Now().UTC().Unix()
+	currentTime := time.Now().Unix()
 	nonce := strconv.FormatInt(currentTime, 10)
 	message := nonce + uri + body
 	signature := calcHmac256(message, secret)
