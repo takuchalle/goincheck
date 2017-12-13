@@ -13,7 +13,7 @@ import (
 
 var buyCmd = &cobra.Command{
 	Use:   "buy",
-	Short: "Buy goincheck in Japanese Yen.",
+	Short: "Buy coincheck in Japanese Yen.",
 	Long:  "Buy.",
 	RunE:  buy,
 }
