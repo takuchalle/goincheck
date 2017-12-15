@@ -35,6 +35,9 @@ const (
 	// ZecJpy is pair of ZEC(Zcash) and Japanese yen.
 	ZecJpy Pair = "zec_jpy"
 
+	// BchJpy is pair of BCH(Bitcoin Cash) and Japanese yen.
+	BchJpy Pair = "bch_jpy"
+
 	// EthBtc is pair of ETH(Ethereum) and BTC(Bitcoin).
 	EthBtc Pair = "eth_btc"
 
@@ -58,4 +61,7 @@ const (
 
 	// ZecBtc is pair of ZEC(Zcash) and BTC(Bitcoin).
 	ZecBtc Pair = "zec_btc"
+
+	// BchBtc is pair of BCH(Bitcoin Cash) and BTC(Bitcoin).
+	BchBtc Pair = "bch_btc"
 )
